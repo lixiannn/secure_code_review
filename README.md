@@ -13,7 +13,7 @@ Some factors to consider when reviewing code include:
 - Programming language & frameworks used
 - Design patterns used
 
-It is recommended that secure code review is practiced before committing the code.
+It is recommended that secure code review is practiced before merging a pull request.
 
 ## Secure Code Review Checklist Summary
 ![Alt text](code_review_checklist.png)
@@ -21,22 +21,45 @@ It is recommended that secure code review is practiced before committing the cod
 ## Focus Areas
 
 ### Authentication
-Authentication vulnerabilities allow malicious user to gain access to functionalities that we wish to protect.
+Authentication vulnerabilities allow malicious users to gain access to functionalities that we wish to protect.
 
 <details>
 <summary>Click here for more information</summary>
 
 #### Types of Vulnerabilities
 - **Brute-force password guessing**: common and weak passwords (e.g. `Password123!`) can be easily guessed in such attacks
-- **Flawed two-factor verification logic**: if not implemented correctly, users may be able to skip to logged-in only pages after completing only the first step of authentication
-  ```python
-  # authentication only checks for credentials
-  def is_authenticated(username: str, password: str):
-    user = User.query.filter_by(username=username).first()
-    if user is None or not user.verify_password(password):
-        return False
-    return True
-  ```
+- **Flawed two-factor verification logic**: if not implemented correctly, users may be able to skip to logged-in only pages after completing only the first step of authentication. 
+
+    For instance, a user logs in to a vulnerable website with his/her credentials. 
+    ```
+    POST /login/first_part
+    Host: example.com
+
+    username=adam&password=StronkP@ssw0rd!
+    ```
+
+    He/She is then assigned an `account` cookie (which is simply the username, e.g. `cookie=adam`), before being asked for a verification code. 
+    ```
+    HTTP/1.1 200 OK
+    Set-Cookie: cookie=adam
+
+    GET /login/second_part 
+    Cookie: cookie=adam
+    ```
+    
+    When submitting the verification code, the request uses this cookie to determine which account the user is trying to access. Using tools like `burpsuite`, attacker can log in with his/her own credentials, intercept the response, and change the value of the  `account` cookie to any arbitray username when submitting the verification code to gain access to that user's account.
+    ``` bash
+    POST /login/first_part
+    Host: example.com
+
+    username=attacker&password=AttackerPassword!
+
+    POST /login/second_part
+    Host: example.com
+    Cookie: cookie=adam # attacker can now login as adam
+
+    verification_code=123456
+    ```
 </details>
 
 #### Review Checklist
@@ -67,8 +90,9 @@ Authorization vulnerabilities allow malicious user to perform unwanted actions o
     ```python
     # assuming authorization check is done only on the UI level
     @app.get("/update_exam_score")
-    def update_exam_score(student_id: int):
-        # authorization check should have been done here before proceeding e.g. this function should only be accessible after logging in with admin credentials
+    def update_exam_score():
+        # authorization check should have been done here before proceeding
+        # e.g. this function should only be accessible after logging in with admin credentials
         request_args = request.args.to_dict()
         student_id = request_args.get("student_id")
         score = request_args.get("score")
@@ -124,7 +148,7 @@ Business logic vulnerabilities are flaws in the design and implementation of an 
   voucher_discount_amount = voucher_discount.get(voucher_code)
   final_price = original_price - discount_amount - voucher_discount_amount
   ```
-  The above code applies discount to an item before a user checks out his/her cart. Under the correct circumstances, only either voucher discount or discount from promotion should be allowed. Double discount is not allowed.
+  The above code applies discount to an item before a user checks out his/her cart. In this case, there is a voucher discount and a promotional discount. The business requirement is that only one of the two discounts may be applied. Double discount is not allowed.
 
   However, failure to translate the above business requirement into code allows for double discount, allowing users to get more discount than what should have been allowed.
 
@@ -175,7 +199,7 @@ Improper exception handling can lead to leaking of valuable information.
 
 #### Review Checklist
 - [ ] Ensure error messages do not reveal extra information to user.
-- [ ] Ensure all exits from a function are covered.
+- [ ] Ensure all exits from a function, including exceptions, are covered.
 - [ ] Ensure that a generic error page is used for all exceptions if possible.
 
 ### Injection Attack
@@ -255,7 +279,7 @@ Session management is needed by applications to retain information about each us
 
 - **Session fixation**: Set someone else's session ID to a predefined value and impersonating them using that known value
 
-- **Session elevation**: this vulnerabilitiy occurs when the importance of a session has changed (e.g. after user logs in), but the session ID remains the same
+- **Session elevation**: this vulnerability occurs when the importance of a session has changed (e.g. after user logs in), but the session ID remains the same
 
 </details>
 
