@@ -1,19 +1,19 @@
 # Secure Code Review Guideline
 
-**Disclaimer**: This document serves only as a guideline and the examples shown are non-exhaustive. Please apply the following defenses on a case-by-case basis. For more information, please visit: https://owasp.org/www-pdf-archive/OWASP_Code_Review_Guide_v2.pdf
+**Disclaimer**: This document serves as a set of guidelines and the examples shown are non-exhaustive. Please apply these recommendations considering your own codebase context. For more information, please visit: https://owasp.org/www-pdf-archive/OWASP_Code_Review_Guide_v2.pdf
 
 ## What is Secure Code Review
-Secure code review identifies flaws in application features and design to help ensure that software is developed with security in mind. This is done by auditing the source code for security and logical controls.
+Secure code review identifies flaws in application features and design to help ensure that software is developed with security in mind. This is applied during merging of pull requests and checks that written code follows security and logical controls.
 
 Some factors to consider when reviewing code include:
-- Application feature & business rules
+- Application features & business rules
 - Context, such as data sensitivity level
 - User roles and access rights
 - Application type
 - Programming language & frameworks used
 - Design patterns used
 
-It is recommended that secure code review is practiced before merging a pull request.
+It is recommended that these security guidelines are considered during regular code review sessions.
 
 ## Secure Code Review Checklist Summary
 ![Alt text](code_review_checklist.png)
@@ -21,14 +21,14 @@ It is recommended that secure code review is practiced before merging a pull req
 ## Focus Areas
 
 ### Authentication
-Authentication vulnerabilities allow malicious users to gain access to functionalities that we wish to protect.
+Mistakes in authentication code allow unintended access to protected data and functions.
 
 <details>
 <summary>Click here for more information</summary>
 
 #### Types of Vulnerabilities
-- **Brute-force password guessing**: common and weak passwords (e.g. `Password123!`) can be easily guessed in such attacks
-- **Flawed two-factor verification logic**: if not implemented correctly, users may be able to skip to logged-in only pages after completing only the first step of authentication. 
+- **Brute-force password guessing**: Allowing weak passwords (e.g. `Password123`) and not adopting login attempt lockouts make a system susceptible to brute-force attacks to get past authentication pages.
+- **Flawed two-factor verification logic**: improper implementation allows attackers to bypass 2FA checks after completing only the first step of authentication. 
 
     For instance, a user logs in to a vulnerable website with his/her credentials. 
     ```
@@ -47,7 +47,7 @@ Authentication vulnerabilities allow malicious users to gain access to functiona
     Cookie: cookie=adam
     ```
     
-    When submitting the verification code, the request uses this cookie to determine which account the user is trying to access. Using tools like `burpsuite`, attacker can log in with his/her own credentials, intercept the response, and change the value of the  `account` cookie to any arbitray username when submitting the verification code to gain access to that user's account.
+    When submitting the verification code, the request uses this cookie to determine which account the user is trying to access. Using tools like `burpsuite`, attackers can log in with his/her own credentials, intercept the response, and change the value of the  `account` cookie to any arbitrary username when submitting the verification code to gain access to that user's account.
     ``` bash
     POST /login/first_part
     Host: example.com
@@ -64,17 +64,16 @@ Authentication vulnerabilities allow malicious users to gain access to functiona
 
 #### Review Checklist
 - [ ] Ensure secure password policy is enforced. 
-- [ ] Ensure least privilege principle is adopted.
 - [ ] Ensure temporary account lockouts and rate-limiting are adopted to prevent brute-force attacks.
 
 ### Authorization
-Authorization vulnerabilities allow malicious user to perform unwanted actions on otherwise protected resources.
+Improper authorization allows users to perform unwanted actions on otherwise protected resources.
 
 <details>
 <summary>Click here for more information</summary>
 
 #### Types of Vulnerabilities
-- **Insecure direct object reference**: arises when an application provides direct access to objects (e.g. database records, internal URLs, files) based on user-supplied input without authorization checks
+- **Insecure direct object reference**: missing authorization checks result in direct access to objects (e.g. database records, internal URLs, files) by unauthorized users.
     ```python
     @app.get("/profile/{user_id}")
     def get_user_by_id(user_id: int):
@@ -84,11 +83,11 @@ Authorization vulnerabilities allow malicious user to perform unwanted actions o
         return user
     ```
 
-  A malicious user can access another user's profile if he/she knows the `user_id` by simply navigating to `http://www.example.com/profile/{user_id}`.
+  If `user_id` is known or guessable, simply navigating to `http://www.example.com/profile/{user_id}` would render their profile information, which may be an unintentional leakage of data.
 
-- **Missing function level access control**: if access to protected functions are not properly verified (e.g. verification is only done at the UI level), a malicious user can still send requests to these protected functions and they will still be processed, even though the resultant view is denied to the user.
+- **Missing function level access control**: if access to protected functions is not properly verified on the backend, users can still send requests to these protected functions and they will still be processed, even though the resultant view is denied to the user.
     ```python
-    # assuming authorization check is done only on the UI level
+    # assuming authorization check is done only on in the UI
     @app.get("/update_exam_score")
     def update_exam_score():
         # authorization check should have been done here before proceeding
@@ -109,17 +108,17 @@ Authorization vulnerabilities allow malicious user to perform unwanted actions o
 
 #### Review Checklist 
 - [ ] Ensure all locations where user input is used to reference objects directly are equipped with authorisation checks. 
-- [ ] Ensure all entry points are properly authorized.
+- [ ] Ensure least privilege principle is adopted.
 - [ ] For functions with higher risk, multiple levels of authorization checks can be considered.
 
 ### Business Logic & Design
-Business logic vulnerabilities are flaws in the design and implementation of an application that allow for unintended behaviours.
+Flaws in the design and implementation of Business logic can lead to unintended behaviour.
 
 <details>
 <summary>Click here for more information</summary>
 
 #### Types of Vulnerabilities
-- **Injection attack**: allows a malicious user to add/inject content into an application to modify its behaviours. 
+- **Lack of bounds checking**: allows users to modify application behaviour with unexpected input. 
     ```python
     user = form.get('user')
     bidding_price = form.get('bidding_price') # business validation should have been done here to ensure input conforms to expected range
@@ -138,25 +137,28 @@ Business logic vulnerabilities are flaws in the design and implementation of an 
   The attacker can bid for the object without paying for it.
 - **Business logic errors**: failure to align to business context, allowing unintended processing to take place
   ```python
+  # Company is running a promotion on an item, which is not supposed to apply if customers use vouchers
   voucher_discount = {
     "code_1": 10,
     "code_2": 30,
     "code_3": 50
   }
   voucher_code = form.get('voucher_code') # voucher discount
-  discount_amount = form.get('discount_amount') # promotion discount
-  voucher_discount_amount = voucher_discount.get(voucher_code)
-  final_price = original_price - discount_amount - voucher_discount_amount
+  voucher_discount_amount = voucher_discount.get(voucher_code)  
+  promo_amount = form.get('discount_amount') # recently added promotion
+  # price calculation
+  price = original_price - voucher_discount_amount
+  price -= promo_amount # recently added promotion calculation
   ```
-  The above code applies discount to an item before a user checks out his/her cart. In this case, there is a voucher discount and a promotional discount. The business requirement is that only one of the two discounts may be applied. Double discount is not allowed.
+  The above code calculates item price when a user adds it to their cart. In this case, both the voucher and promotional discount stack, even though the promotion was only meant for users not using vouchers.
 
-  However, failure to translate the above business requirement into code allows for double discount, allowing users to get more discount than what should have been allowed.
+  This can result from a poor translation of business requirements into code, or haphazard additions to the codebase that were not checked.
 
 </details>
 
 #### Review Checklist
-- [ ] Ensure all business logic and data flow are clear and aligned with business requirements. 
-- [ ] Make use of business validation to limit value ranges and input options to values that make sense for the business context.
+- [ ] Ensure all business logic and data flows are clear and aligned with business requirements. 
+- [ ] Make use of validation functions to limit value ranges and input options to values that make sense for the business context.
 
 ### Data Management
 Sensitive data such as IC numbers deserve extra protection, including encryption at rest and in transit.
@@ -165,28 +167,29 @@ Sensitive data such as IC numbers deserve extra protection, including encryption
 <summary>Click here for more information</summary>
 
 #### Types of Vulnerabilities
-- **Weak cryptography**: adoption of weak encryption algorithms (e.g. `DES`) can be easily cracked via brute-force mechanisms
-- **Hardcoding credentials**: hard coding of credentials and committing them can lead to massive security breaches via password guessing exploits
+- **Weak cryptography**: use of outdated encryption algorithms (e.g. `DES`) leads to encrypted data being easily "cracked" and exposed
+- **Hardcoding secrets**: hard coding of secrets such as database credentials, API and encryption keys, can lead to them being published in code repositories, allowing unintended access to APIs and data to anyone who has access to the codebase
 
 </details>
 
 #### Review Checklist
-- [ ] Ensure standard encryption algorithm (e.g. `AES`) is adopted.
+- [ ] Ensure updated encryption algorithms are used.
 - [ ] Ensure `SSL/TLS` is used for protecting data in transit.
-- [ ] Ensure no credentials are hardcoded and committed, and that they are stored in secure locations.
+- [ ] Ensure the use of secret management tools, with controlled access, to store sensitive data such as credentials and keys.
 
 ### Exception Handling
-Improper exception handling can lead to leaking of valuable information.
+Improper exception handling can lead to leaking of valuable system information.
 
 <details>
 <summary>Click here for more information</summary>
 
 #### Types of Vulnerabilities
-- **Revealing internal error messages**: this can provide malicious user important clues regarding the application. Examples include:
+- **Revealing internal error messages**: this can provide malicious users important clues regarding the application. Examples include:
     ```
     - stack traces
     - database dumps
     - error codes
+    - software and hardware types and versions
     ```
 - **Insecure state due to exception**: initial failure may cause the application to enter an insecure state. Examples include:
     ```
@@ -198,9 +201,9 @@ Improper exception handling can lead to leaking of valuable information.
 </details>
 
 #### Review Checklist
-- [ ] Ensure error messages do not reveal extra information to user.
+- [ ] Ensure code artefacts from the debugging process have been removed and that logging levels are set appropriately.
 - [ ] Ensure all exits from a function, including exceptions, are covered.
-- [ ] Ensure that a generic error page is used for all exceptions if possible.
+- [ ] Ensure that the program fails gracefully, preferably displaying a generic error page for all exceptions.
 
 ### Injection Attack
 Injection attack allows a malicious user to add/inject content into an application to modify its behaviours. 
@@ -227,19 +230,19 @@ Injection attack allows a malicious user to add/inject content into an applicati
 </details>
 
 #### Review Checklist
-- [ ] Ensure all inputs are validated and sanitized in terms of characters used and length of input, and that these inputs conform to expectations. 
-- [ ] Ensure input validation are done on the server side to prevent modification via man-in-the-middle attack.
+- [ ] Ensure all input is validated for expected length and data type and encoded/sanitized of special characters. 
+- [ ] Ensure input validation is done on the server side.
 
-### Logging & Auditing
-Application log messages are important for auditing purposes, and hence proper logging is important.
+### Logging
+Application logs are important for debugging errors, but developers should be aware of how to mitigate some of the common unintended behaviours which can arise.
 
 <details>
 <summary>Click here for more information</summary>
 
 #### Types of Vulnerabilities
-- **Sensitive data exposure**: sensitive data such as IC number and credentials should not be logged down in plain text
-- **Denial of Service**: malicious user can take advantage of excessive logging to deplete system resources by filling up disk space
-- **Log injection**: without proper sanitization, invalid user input may be injected into logs, leading to log forging and even code execution via log file poisoning.
+- **Sensitive data exposure**: logging sensitive data such as IC numbers and credentials can lead to unintentional exposure.
+- **Denial of Service**: malicious users can take advantage of excessive logging to deplete system resources such as processing and disk space leading to outages.
+- **Log injection**: without proper sanitization, user input may be injected into logs, leading to log forging and even code execution if log files are consumed programmatically.
     ```python
     val = request.getParameter("val");
     try:
@@ -247,7 +250,7 @@ Application log messages are important for auditing purposes, and hence proper l
     except NumberFormatException:
         log.info("Failed to parse val = " + val)
     ```
-  A malicious user can submit this string `twenty-one%0a%0aINFO:+User+logged+out%3dbadguy` and the log will look like the follwing, hence creating forged entries:
+  A malicious user can submit this string `twenty-one%0a%0aINFO:+User+logged+out%3dbadguy` and the log will look like the following, hence creating forged entries:
     ```
     INFO: Failed to parse val=twenty-one
 
@@ -257,12 +260,12 @@ Application log messages are important for auditing purposes, and hence proper l
 </details>
 
 #### Review Checklist
-- [ ] Ensure that logs are not exposed in web-accessible locations, and if done so, should have restricted access and be configured with a plain text MIME.
-- [ ] Ensure that log masking is adopted for logging sensitive data.
-- [ ] Ensure that there are no user functions that allow for excessive logging.
+- [ ] Ensure that logs are stored in restricted locations.
+- [ ] Ensure that log masking is used for sensitive data.
+- [ ] Ensure that no user invoked functions generate excessive logs.
 
 ### Session Management
-Session management is needed by applications to retain information about each user for the duration of multiple requests.
+Improper session management can lead to malicious users impersonating others and gaining access to privileged data or application functions.
 
 <details>
 <summary>Click here for more information</summary>
@@ -277,14 +280,11 @@ Session management is needed by applications to retain information about each us
     ```
   The code above is vulnerable as `session_id` is exposed in URL and there are no authentication and authorization checks.
 
-- **Session fixation**: Set someone else's session ID to a predefined value and impersonating them using that known value
-
-- **Session elevation**: this vulnerability occurs when the importance of a session has changed (e.g. after user logs in), but the session ID remains the same
+- **Session elevation**: Unauthenticated users are less security inclined, if thier unauthenticated session ID was captured and remains unchanged even after they log in, the malicious user who captured the unauthenticated session ID would now be able to impersonate the user.
 
 </details>
 
 #### Review Checklist
 - [ ] Ensure that session IDs are placed in cookies, and these cookies are HTTP-Only.
-- [ ] Ensure that a warning is displayed when an active session is accessed from another location.
-- [ ] Ensure that session ID can only be generated by the application server.
-- [ ] Ensure that a session is rolled (i.e. creating a new session ID and transferring session information over) whenever a session is elevated.
+- [ ] Ensure that session IDs generated by a cryptographically secure funtion and cannot be guessed.
+- [ ] Ensure that a new session ID is generated whenever a session is elevated and that session data is flushed when it is de-elevated.
