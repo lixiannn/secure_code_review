@@ -38,13 +38,13 @@ Mistakes in authentication code allow unintended access to protected data and fu
     username=adam&password=StronkP@ssw0rd!
     ```
 
-    He/She is then assigned an `account` cookie (which is simply the username, e.g. `cookie=adam`), before being asked for a verification code. 
+    He/She is then assigned an `account` cookie (which is simply the username, e.g. `account=adam`), before being asked for a verification code. 
     ```
     HTTP/1.1 200 OK
-    Set-Cookie: cookie=adam
+    Set-Cookie: account=adam
 
     GET /login/second_part 
-    Cookie: cookie=adam
+    Cookie: account=adam
     ```
     
     When submitting the verification code, the request uses this cookie to determine which account the user is trying to access. Using tools like `burpsuite`, attackers can log in with his/her own credentials, intercept the response, and change the value of the  `account` cookie to any arbitrary username when submitting the verification code to gain access to that user's account.
@@ -56,7 +56,7 @@ Mistakes in authentication code allow unintended access to protected data and fu
 
     POST /login/second_part
     Host: example.com
-    Cookie: cookie=adam # attacker can now login as adam
+    Cookie: account=adam # attacker can now login as adam
 
     verification_code=123456
     ```
