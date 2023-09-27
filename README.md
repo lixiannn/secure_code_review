@@ -262,7 +262,7 @@ Application logs are important for debugging errors, but developers should be aw
 #### Review Checklist
 - [ ] Ensure that logs are stored in restricted locations.
 - [ ] Ensure that log masking is used for sensitive data.
-- [ ] Ensure that no user invoked functions generate excessive logs.
+- [ ] Ensure that no user invoked functions that generate excessive logs.
 
 ### Session Management
 Improper session management can lead to malicious users impersonating others and gaining access to privileged data or application functions.
@@ -280,7 +280,7 @@ Improper session management can lead to malicious users impersonating others and
     ```
   The code above is vulnerable as `session_id` is exposed in URL and there are no authentication and authorization checks.
 
-- **Session elevation**: Unauthenticated users are less security inclined, if thier unauthenticated session ID was captured and remains unchanged even after they log in, the malicious user who captured the unauthenticated session ID would now be able to impersonate the user.
+- **Session elevation**: An attacker could have captured a session ID prior to user login. If the same session ID is reused when the user logs in, then the attacker can gain access to the elevated session using the captured session ID.
 
 </details>
 
