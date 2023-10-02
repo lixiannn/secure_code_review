@@ -65,9 +65,6 @@ Mistakes in authentication code allow unintended access to protected data and fu
 ### Authorization
 Improper authorization allows users to perform unwanted actions on otherwise protected resources.
 
-<details>
-<summary>Click here for more information</summary>
-
 #### Types of Vulnerabilities
 - **Insecure direct object reference**: missing authorization checks result in direct access to objects (e.g. database records, internal URLs, files) by unauthorized users.
     ```python
@@ -100,8 +97,6 @@ Improper authorization allows users to perform unwanted actions on otherwise pro
     ```
   When a malicious user sends a request via `curl http://www.example.com/update_exam_score?student_id=123456&score=100`, student with `student_id = 123456` will have his exam score updated to `100`.
 
-</details>
-
 #### Review Checklist 
 - [ ] Ensure all locations where user input is used to reference objects directly are equipped with authorisation checks. 
 - [ ] Ensure least privilege principle is adopted.
@@ -109,9 +104,6 @@ Improper authorization allows users to perform unwanted actions on otherwise pro
 
 ### Business Logic & Design
 Flaws in the design and implementation of Business logic can lead to unintended behaviour.
-
-<details>
-<summary>Click here for more information</summary>
 
 #### Types of Vulnerabilities
 - **Lack of bounds checking**: allows users to modify application behaviour with unexpected input. 
@@ -150,8 +142,6 @@ Flaws in the design and implementation of Business logic can lead to unintended 
 
   This can result from a poor translation of business requirements into code, or haphazard additions to the codebase that were not checked.
 
-</details>
-
 #### Review Checklist
 - [ ] Ensure all business logic and data flows are clear and aligned with business requirements. 
 - [ ] Make use of validation functions to limit value ranges and input options to values that make sense for the business context.
@@ -159,14 +149,9 @@ Flaws in the design and implementation of Business logic can lead to unintended 
 ### Data Management
 Sensitive data such as IC numbers deserve extra protection, including encryption at rest and in transit.
 
-<details>
-<summary>Click here for more information</summary>
-
 #### Types of Vulnerabilities
 - **Weak cryptography**: use of outdated encryption algorithms (e.g. `DES`) leads to encrypted data being easily "cracked" and exposed
 - **Hardcoding secrets**: hard coding of secrets such as database credentials, API and encryption keys, can lead to them being published in code repositories, allowing unintended access to APIs and data to anyone who has access to the codebase
-
-</details>
 
 #### Review Checklist
 - [ ] Ensure updated encryption algorithms are used.
@@ -175,9 +160,6 @@ Sensitive data such as IC numbers deserve extra protection, including encryption
 
 ### Exception Handling
 Improper exception handling can lead to leaking of valuable system information.
-
-<details>
-<summary>Click here for more information</summary>
 
 #### Types of Vulnerabilities
 - **Revealing internal error messages**: this can provide malicious users important clues regarding the application. Examples include:
@@ -194,8 +176,6 @@ Improper exception handling can lead to leaking of valuable system information.
     - continuous processing of business logic despite exception
     ```
 
-</details>
-
 #### Review Checklist
 - [ ] Ensure code artefacts from the debugging process have been removed and that logging levels are set appropriately.
 - [ ] Ensure all exits from a function, including exceptions, are covered.
@@ -203,9 +183,6 @@ Improper exception handling can lead to leaking of valuable system information.
 
 ### Injection Attack
 Injection attack allows a malicious user to add/inject content into an application to modify its behaviours. 
-
-<details>
-<summary>Click here for more information</summary>
 
 #### Types of Vulnerabilities
 - **SQL Injection**: modifies queries that an application makes to the database
@@ -223,17 +200,12 @@ Injection attack allows a malicious user to add/inject content into an applicati
     ```
   The `OR 1=1` condition will always return `TRUE`, and the `#` comments out the rest of the query. In essence, the query becomes `select * from users where username=admin`, and malicious user can login as admin.
 
-</details>
-
 #### Review Checklist
 - [ ] Ensure all input is validated for expected length and data type and encoded/sanitized of special characters. 
 - [ ] Ensure input validation is done on the server side.
 
 ### Logging
 Application logs are important for debugging errors, but developers should be aware of how to mitigate some of the common unintended behaviours which can arise.
-
-<details>
-<summary>Click here for more information</summary>
 
 #### Types of Vulnerabilities
 - **Sensitive data exposure**: logging sensitive data such as IC numbers and credentials can lead to unintentional exposure.
@@ -253,8 +225,6 @@ Application logs are important for debugging errors, but developers should be aw
     INFO: User logged out=badguy
     ```
 
-</details>
-
 #### Review Checklist
 - [ ] Ensure that logs are stored in restricted locations.
 - [ ] Ensure that log masking is used for sensitive data.
@@ -262,9 +232,6 @@ Application logs are important for debugging errors, but developers should be aw
 
 ### Session Management
 Improper session management can lead to malicious users impersonating others and gaining access to privileged data or application functions.
-
-<details>
-<summary>Click here for more information</summary>
 
 #### Types of Vulnerabilities
 - **Session hijacking**: malicious user can steal someone else's session ID and use it to impersonate that user
@@ -277,8 +244,6 @@ Improper session management can lead to malicious users impersonating others and
   The code above is vulnerable as `session_id` is exposed in URL and there are no authentication and authorization checks.
 
 - **Session elevation**: An attacker could have captured a session ID prior to user login. If the same session ID is reused when the user logs in, then the attacker can gain access to the elevated session using the captured session ID.
-
-</details>
 
 #### Review Checklist
 - [ ] Ensure that session IDs are placed in cookies, and these cookies are HTTP-Only.
