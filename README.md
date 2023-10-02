@@ -24,7 +24,8 @@ It is recommended that these security guidelines are considered during regular c
 Mistakes in authentication code allow unintended access to protected data and functions.
 
 <details>
-<summary>Click here for more information</summary>
+<summary>
+Click here for more information
 
 #### Types of Vulnerabilities
 - **Brute-force password guessing**: Allowing weak passwords (e.g. `Password123`) and not adopting login attempt lockouts make a system susceptible to brute-force attacks to get past authentication pages.
@@ -60,6 +61,7 @@ Mistakes in authentication code allow unintended access to protected data and fu
 
     verification_code=123456
     ```
+</summary>
 </details>
 
 #### Review Checklist
