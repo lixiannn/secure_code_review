@@ -1,4 +1,4 @@
-# [What is Secure Code Review](https://docs.developer.tech.gov.sg/docs/secure-code-review-guidelines/?id=what-is-secure-code-review)
+# [What is Secure Code Review](README.md#what-is-secure-code-review)
 
 # [Secure Code Review Checklist Summary](https://docs.developer.tech.gov.sg/docs/secure-code-review-guidelines/?id=secure-code-review-checklist-summary)
 
