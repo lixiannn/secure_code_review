@@ -1,55 +1,19 @@
-# Secure Code Review Guideline
+# What is Secure Code Review
 
-## What is Secure Code Review
+# Secure Code Review Checklist Summary
 
-## Secure Code Review Checklist Summary
+# Authentication
 
-## Focus Areas
+# Authorization
 
-### Authentication
+# Business Logic & Design
 
-#### Types of Vulnerabilities
+# Data Management
 
-#### Review Checklist
+# Exception Handling
 
-### Authorization
+# Injection Attack
 
-#### Types of Vulnerabilities
+# Logging
 
-#### Review Checklist 
-
-### Business Logic & Design
-
-#### Types of Vulnerabilities
-
-#### Review Checklist
-
-### Data Management
-
-#### Types of Vulnerabilities
-
-#### Review Checklist
-
-### Exception Handling
-
-#### Types of Vulnerabilities
-
-#### Review Checklist
-
-### Injection Attack
-
-#### Types of Vulnerabilities
-
-#### Review Checklist
-
-### Logging
-
-#### Types of Vulnerabilities
-
-#### Review Checklist
-
-### Session Management
-
-#### Types of Vulnerabilities
-
-#### Review Checklist
+# Session Management
