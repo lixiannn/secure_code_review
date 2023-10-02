@@ -16,7 +16,7 @@ Some factors to consider when reviewing code include:
 It is recommended that these security guidelines are considered during regular code review sessions.
 
 ## Secure Code Review Checklist Summary
-![Alt text](updated_code_review_checklist.png)
+![Alt text](code_review_checklist.png)
 
 ## Focus Areas
 
