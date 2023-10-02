@@ -1,19 +1,19 @@
-# [What is Secure Code Review](README.md#what-is-secure-code-review)
+# [What is Secure Code Review](what-is-secure-code-review)
 
-# [Secure Code Review Checklist Summary](https://docs.developer.tech.gov.sg/docs/secure-code-review-guidelines/?id=secure-code-review-checklist-summary)
+# [Secure Code Review Checklist Summary](#secure-code-review-checklist-summary)
 
-# [Authentication](https://docs.developer.tech.gov.sg/docs/secure-code-review-guidelines/?id=authentication)
+# [Authentication](#authentication)
 
-# [Authorization](https://docs.developer.tech.gov.sg/docs/secure-code-review-guidelines/?id=authorization)
+# [Authorization](#authorization)
 
-# [Business Logic & Design](https://docs.developer.tech.gov.sg/docs/secure-code-review-guidelines/?id=business-logic-&-design)
+# [Business Logic & Design](#business-logic-&-design)
 
-# [Data Management](https://docs.developer.tech.gov.sg/docs/secure-code-review-guidelines/?id=data-management)
+# [Data Management](#data-management)
 
-# [Exception Handling](https://docs.developer.tech.gov.sg/docs/secure-code-review-guidelines/?id=exception-handling)
+# [Exception Handling](#exception-handling)
 
-# [Injection Attack](https://docs.developer.tech.gov.sg/docs/secure-code-review-guidelines/?id=injection-attack)
+# [Injection Attack](#injection-attack)
 
-# [Logging](https://docs.developer.tech.gov.sg/docs/secure-code-review-guidelines/?id=logging)
+# [Logging](#logging)
 
-# [Session Management](https://docs.developer.tech.gov.sg/docs/secure-code-review-guidelines/?id=session-management)
+# [Session Management](#session-management)
